@@ -1,4 +1,5 @@
 import 'package:app_do_an_nhanh/utils/app_colors.dart';
+import 'package:app_do_an_nhanh/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingScreen extends StatelessWidget {
@@ -55,26 +56,15 @@ class OnboardingScreen extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
-                SizedBox(
+                PrimaryButton(
+                  text: "Bắt đầu",
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, "/login");
+                  },
+                  backgroundColor: AppColors.primary,
+                  textColor: Colors.white,
                   width: double.infinity,
                   height: 56,
-                  child: ElevatedButton(
-                    onPressed: () => {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    child: Text(
-                      "Bắt đầu",
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
                 ),
               ],
             ),

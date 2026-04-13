@@ -1,3 +1,4 @@
+import 'package:app_do_an_nhanh/screens/login_screen.dart';
 import 'package:app_do_an_nhanh/screens/onboarding_screen.dart';
 import 'package:app_do_an_nhanh/utils/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const OnboardingScreen(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const OnboardingScreen(),
+        '/login': (context) => const LoginScreen(),
+      },
     );
   }
 }
