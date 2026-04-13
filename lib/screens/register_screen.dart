@@ -65,7 +65,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   height: 56,
                   backgroundColor: AppColors.primary,
                   textColor: Colors.white,
-                  onPressed: () {},
+                  onPressed: () {
+                    // UI only, action to be added later
+                  },
                 ),
 
                 const SizedBox(height: 24),

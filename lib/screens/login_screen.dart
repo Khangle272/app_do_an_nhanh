@@ -68,7 +68,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: 56,
                   backgroundColor: AppColors.primary,
                   textColor: Colors.white,
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, "/main");
+                  },
                 ),
 
                 const SizedBox(height: 24),
