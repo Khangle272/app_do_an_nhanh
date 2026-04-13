@@ -3,14 +3,14 @@ import 'package:app_do_an_nhanh/widgets/custom_textfield.dart';
 import 'package:app_do_an_nhanh/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const Center(
                   child: Text(
-                    "Đăng nhập",
+                    "Đăng ký",
                     style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
                   ),
                 ),
@@ -48,22 +48,19 @@ class _LoginScreenState extends State<LoginScreen> {
                   isPassword: true,
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height: 16),
 
-                // Forgot Password link
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {},
-                    child: const Text("Quên mật khẩu?"),
-                  ),
+                const CustomTextfield(
+                  hintText: "Xác Nhận Mật khẩu",
+                  prefixIcon: Icons.lock_outline,
+                  isPassword: true,
                 ),
 
                 const SizedBox(height: 24),
 
-                // Login Button
+                // Register Button
                 PrimaryButton(
-                  text: "Đăng nhập",
+                  text: "Đăng ký",
                   width: double.infinity,
                   height: 56,
                   backgroundColor: AppColors.primary,
@@ -77,9 +74,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   alignment: Alignment.center,
                   child: TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, "/register");
+                      Navigator.pushNamed(context, "/login");
                     },
-                    child: const Text("Chưa có tài khoản?"),
+                    child: const Text("Đã có tài khoản?"),
                   ),
                 ),
               ],
