@@ -6,11 +6,11 @@ import 'package:app_do_an_nhanh/utils/app_theme.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const FastFoodApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class FastFoodApp extends StatelessWidget {
+  const FastFoodApp({super.key});
 
   @override
   Widget build(BuildContext context) {

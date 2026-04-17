@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:app_do_an_nhanh/utils/app_colors.dart';
 
 class PrimaryButton extends StatelessWidget {
   final String text;

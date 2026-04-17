@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:app_do_an_nhanh/utils/app_colors.dart';
+import 'package:app_do_an_nhanh/screens/home_screen.dart';
+import 'package:app_do_an_nhanh/screens/search_screen.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -11,26 +13,17 @@ class MainLayout extends StatefulWidget {
 class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
 
-  // Danh sách các màn hình con (tạm thời để text chờ bạn làm UI chi tiết)
   final List<Widget> _screens = [
-    const Center(
-      child: Text('Giao diện Trang chủ', style: TextStyle(fontSize: 20)),
-    ),
-    const Center(
-      child: Text('Giao diện Yêu thích', style: TextStyle(fontSize: 20)),
-    ),
-    const Center(
-      child: Text('Giao diện Giỏ hàng', style: TextStyle(fontSize: 20)),
-    ),
-    const Center(
-      child: Text('Giao diện Tài khoản', style: TextStyle(fontSize: 20)),
-    ),
+    const HomeScreen(),
+    const SearchScreen(),
+    const Center(child: Text('Giỏ hàng', style: TextStyle(fontSize: 20))),
+    const Center(child: Text('Tài khoản', style: TextStyle(fontSize: 20))),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex], // Nội dung thay đổi dựa trên tab được chọn
+      body: _screens[_currentIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
@@ -45,11 +38,10 @@ class _MainLayoutState extends State<MainLayout> {
           currentIndex: _currentIndex,
           onTap: (index) {
             setState(() {
-              _currentIndex = index; // Cập nhật tab
+              _currentIndex = index;
             });
           },
-          type: BottomNavigationBarType
-              .fixed, // Cố định các tab (không bị hiệu ứng đẩy)
+          type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.white,
           selectedItemColor: AppColors.primary,
           unselectedItemColor: Colors.grey,
@@ -69,9 +61,9 @@ class _MainLayoutState extends State<MainLayout> {
               label: 'Trang chủ',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.favorite_outline),
-              activeIcon: Icon(Icons.favorite),
-              label: 'Yêu thích',
+              icon: Icon(Icons.search_outlined),
+              activeIcon: Icon(Icons.search),
+              label: 'Tìm kiếm',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.shopping_bag_outlined),
