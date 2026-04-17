@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:app_do_an_nhanh/utils/app_colors.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -17,8 +18,21 @@ class _SearchScreenState extends State<SearchScreen> {
     'Mì cay',
   ];
 
+  void _onSearchChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchChanged);
+  }
+
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     super.dispose();
   }
@@ -33,7 +47,7 @@ class _SearchScreenState extends State<SearchScreen> {
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pushReplacementNamed(context, "/main"),
         ),
         title: TextField(
           controller: _searchController,
@@ -51,7 +65,7 @@ class _SearchScreenState extends State<SearchScreen> {
               onPressed: () => setState(() => _searchController.clear()),
             ),
           IconButton(
-            icon: const Icon(Icons.tune, color: Colors.orange),
+            icon: const Icon(Icons.tune, color: AppColors.primary),
             onPressed: () => _showFilterBottomSheet(context),
           ),
         ],
@@ -184,7 +198,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     height: 55,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
+                        backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -221,9 +235,11 @@ class _SearchScreenState extends State<SearchScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.orange.withOpacity(0.1) : Colors.white,
+          color: isSelected
+              ? AppColors.primary.withValues(alpha: 0.1)
+              : Colors.white,
           border: Border.all(
-            color: isSelected ? Colors.orange : Colors.grey.shade300,
+            color: isSelected ? AppColors.primary : Colors.grey.shade300,
           ),
           borderRadius: BorderRadius.circular(20),
         ),
@@ -234,14 +250,14 @@ class _SearchScreenState extends State<SearchScreen> {
               Icon(
                 icon,
                 size: 16,
-                color: isSelected ? Colors.orange : Colors.grey.shade600,
+                color: isSelected ? AppColors.primary : Colors.grey.shade600,
               ),
               const SizedBox(width: 4),
             ],
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.orange : Colors.black87,
+                color: isSelected ? AppColors.primary : Colors.black87,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),

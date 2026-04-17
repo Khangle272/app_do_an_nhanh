@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:app_do_an_nhanh/utils/app_colors.dart';
 import '../models/food_model.dart';
 
 class ProductDetailScreen extends StatefulWidget {
@@ -73,7 +74,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         '${widget.food.price} đ',
                         style: const TextStyle(
                           fontSize: 22,
-                          color: Colors.orange,
+                          color: AppColors.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -116,12 +117,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           height: 50,
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? Colors.orange
+                                ? AppColors.primary
                                 : Colors.grey.shade100,
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: isSelected
-                                  ? Colors.orange
+                                  ? AppColors.primary
                                   : Colors.transparent,
                             ),
                           ),
@@ -166,11 +167,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       return CheckboxListTile(
                         contentPadding: EdgeInsets.zero,
                         controlAffinity: ListTileControlAffinity.leading,
-                        activeColor: Colors.orange,
+                        activeColor: AppColors.primary,
                         title: Text(topping['name']),
                         subtitle: Text(
                           '+${topping['price']} đ',
-                          style: const TextStyle(color: Colors.orange),
+                          style: const TextStyle(color: AppColors.primary),
                         ),
                         value: isSelected,
                         onChanged: (bool? value) {
@@ -240,7 +241,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.add, color: Colors.orange),
+                    icon: const Icon(Icons.add, color: AppColors.primary),
                     onPressed: () => setState(() => _quantity++),
                   ),
                 ],
@@ -252,7 +253,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 height: 55,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
+                    backgroundColor: AppColors.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),

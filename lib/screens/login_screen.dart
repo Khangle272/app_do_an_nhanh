@@ -79,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   alignment: Alignment.center,
                   child: TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, "/register");
+                      Navigator.pushReplacementNamed(context, "/register");
                     },
                     child: const Text("Chưa có tài khoản?"),
                   ),
