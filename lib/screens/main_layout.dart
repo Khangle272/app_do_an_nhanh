@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:app_do_an_nhanh/utils/app_colors.dart';
-import 'package:app_do_an_nhanh/screens/home_screen.dart';
-import 'package:app_do_an_nhanh/screens/search_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:app_do_an_nhanh/providers/cart_provider.dart';
+import 'package:app_do_an_nhanh/screens/onboarding_screen.dart';
+import 'package:app_do_an_nhanh/screens/login_screen.dart';
+import 'package:app_do_an_nhanh/screens/register_screen.dart';
+import 'package:app_do_an_nhanh/screens/main_layout.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
