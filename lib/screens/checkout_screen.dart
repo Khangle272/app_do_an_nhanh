@@ -1,3 +1,4 @@
+import 'package:app_do_an_nhanh/screens/order_tracking_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
@@ -11,7 +12,9 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   final _addressController = TextEditingController();
-  String _selectedPayment = 'Tiền mặt (COD)';
+
+  // Bước 1: Sửa String thành int (1: Tiền mặt, 2: MoMo) để khớp với trang Tracking
+  int _selectedPayment = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -46,22 +49,27 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               'Phương thức thanh toán',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+
+            // Bước 2: Cập nhật ListTile cho Tiền mặt (value: 1)
             ListTile(
               title: const Text('Tiền mặt (COD)'),
-              leading: Radio<String>(
-                value: 'Tiền mặt (COD)',
+              leading: Radio<int>(
+                value: 1,
                 groupValue: _selectedPayment,
                 onChanged: (value) => setState(() => _selectedPayment = value!),
               ),
             ),
+
+            // Bước 3: Cập nhật ListTile cho MoMo (value: 2)
             ListTile(
               title: const Text('Ví điện tử MoMo'),
-              leading: Radio<String>(
-                value: 'MoMo',
+              leading: Radio<int>(
+                value: 2,
                 groupValue: _selectedPayment,
                 onChanged: (value) => setState(() => _selectedPayment = value!),
               ),
             ),
+
             const Spacer(),
             const Divider(),
             Row(
@@ -81,16 +89,26 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                if (_addressController.text.isEmpty) {
+                // Kiểm tra địa chỉ trước khi đặt
+                if (_addressController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Vui lòng nhập địa chỉ!')),
+                    const SnackBar(
+                        content: Text('Vui lòng nhập địa chỉ giao hàng!')),
                   );
-                } else {
-                  // Sau này sẽ làm trang đặt hàng thành công ở đây
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Đặt hàng thành công!')),
-                  );
+                  return;
                 }
+
+                cart.clearCart();
+
+                // Bước 4: Chuyển trang (Đã bỏ const và truyền biến int vào)
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        OrderTrackingScreen(paymentMethod: _selectedPayment),
+                  ),
+                  (route) => false,
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
@@ -105,5 +123,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _addressController.dispose();
+    super.dispose();
   }
 }
