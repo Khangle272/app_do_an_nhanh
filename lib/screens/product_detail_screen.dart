@@ -3,6 +3,7 @@ import 'package:app_do_an_nhanh/utils/app_colors.dart';
 import '../models/food_model.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
+import '../widgets/custom_app_bar.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Food food;
@@ -28,13 +29,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
-        ),
+      appBar: CustomAppBar(
+        title: 'Chi tiết món ăn',
+        showBackButton: true,
+        onBackPressed: () => Navigator.pop(context),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -134,9 +133,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: isSelected
-                                    ? Colors.white
-                                    : Colors.black87,
+                                color:
+                                    isSelected ? Colors.white : Colors.black87,
                               ),
                             ),
                           ),
@@ -206,7 +204,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         pricePerUnit += (topping['price'] as int);
       }
     }
-    
+
     // 2. Tổng tiền (giá 1 đơn vị * số lượng)
     double finalTotal = pricePerUnit * _quantity;
 
@@ -265,20 +263,21 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                   ),
                   onPressed: () {
-                    final cart = Provider.of<CartProvider>(context, listen: false);
-                    
+                    final cart =
+                        Provider.of<CartProvider>(context, listen: false);
+
                     // Thêm số lượng tương ứng vào giỏ hàng
-                    for(int i = 0; i < _quantity; i++) {
+                    for (int i = 0; i < _quantity; i++) {
                       cart.addItem(
-                        widget.food.id, 
-                        "${widget.food.name} ($_selectedSize)", 
-                        pricePerUnit.toInt()
-                      );
+                          widget.food.id,
+                          "${widget.food.name} ($_selectedSize)",
+                          pricePerUnit.toInt());
                     }
 
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Đã thêm $_quantity ${widget.food.name} vào giỏ hàng!'),
+                        content: Text(
+                            'Đã thêm $_quantity ${widget.food.name} vào giỏ hàng!'),
                         backgroundColor: Colors.green,
                         duration: const Duration(seconds: 1),
                       ),

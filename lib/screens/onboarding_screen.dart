@@ -25,7 +25,7 @@ class OnboardingScreen extends StatelessWidget {
                     color: AppColors.primary.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.fastfood,
                     size: 90,
                     color: AppColors.primary,

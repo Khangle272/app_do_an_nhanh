@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/app_colors.dart';
+import '../widgets/custom_app_bar.dart';
 
 class OrderTrackingScreen extends StatelessWidget {
   // Thêm biến này để nhận dữ liệu từ Checkout gửi sang
@@ -11,25 +12,20 @@ class OrderTrackingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.black),
-          onPressed: () {
-            // Sửa lại để nút X chắc chắn quay về được trang chủ
-            Navigator.of(context)
-                .pushNamedAndRemoveUntil('/main', (route) => false);
-          },
+      appBar: CustomAppBar(
+        title: 'Theo dõi đơn',
+        centerTitle: true,
+        showBackButton: true,
+        onBackPressed: () => Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/main',
+          (route) => false,
         ),
         actions: [
           TextButton(
             onPressed: () {},
-            child:
-                const Text('Cần hỗ trợ?', style: TextStyle(color: Colors.blue)),
+            child: const Text('Cần hỗ trợ?'),
           ),
-          const Icon(Icons.share_outlined, color: Colors.black),
-          const SizedBox(width: 10),
         ],
       ),
       body: SingleChildScrollView(
@@ -47,14 +43,14 @@ class OrderTrackingScreen extends StatelessWidget {
                             fontSize: 24, fontWeight: FontWeight.bold)),
                   ),
                   const SizedBox(height: 5),
-                  Row(
+                  const Row(
                     children: [
-                      const Text('Đúng giờ',
+                      Text('Đúng giờ',
                           style: TextStyle(
                               color: AppColors
                                   .primary, // Đổi sang màu đỏ chuẩn của bạn
                               fontWeight: FontWeight.bold)),
-                      const Text(' • Bếp đang chuẩn bị đơn của bạn.'),
+                      Text(' • Bếp đang chuẩn bị đơn của bạn.'),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -112,10 +108,10 @@ class OrderTrackingScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 15),
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Tổng cộng',
+                      Text('Tổng cộng',
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold)),
                       Text('115.000đ',

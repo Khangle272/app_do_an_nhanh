@@ -1,3 +1,4 @@
+import 'package:app_do_an_nhanh/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
@@ -14,12 +15,10 @@ class CartScreen extends StatelessWidget {
     final productIds = cart.items.keys.toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Giỏ hàng của bạn'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
+      appBar: CustomAppBar(
+        title: 'Giỏ Hàng',
+        showBackButton: false,
         centerTitle: true,
-        elevation: 0,
       ),
       // LOGIC: Nếu giỏ hàng trống hiện giao diện Empty, ngược lại hiện danh sách
       body: cartItems.isEmpty
@@ -131,7 +130,7 @@ class CartScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
             ),
             onPressed: () =>
-                Navigator.of(context).popUntil((route) => route.isFirst),
+                Navigator.pushNamed(context, '/main'), // Điều hướng về Home
             child: const Text('MUA SẮM NGAY',
                 style: TextStyle(
                     color: Colors.white, fontWeight: FontWeight.bold)),
