@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:app_do_an_nhanh/utils/app_colors.dart';
 import '../models/food_model.dart';
+import 'package:provider/provider.dart';
+import '../providers/cart_provider.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Food food;
@@ -197,12 +199,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget _buildBottomAddToCart() {
-    double totalPrice = widget.food.price * _quantity;
+    // 1. Tính giá 1 đơn vị gồm topping
+    double pricePerUnit = widget.food.price.toDouble();
     for (var topping in _toppings) {
       if (_selectedToppings.contains(topping['name'])) {
-        totalPrice += (topping['price'] as int) * _quantity;
+        pricePerUnit += (topping['price'] as int);
       }
     }
+    
+    // 2. Tổng tiền (giá 1 đơn vị * số lượng)
+    double finalTotal = pricePerUnit * _quantity;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -258,15 +264,30 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Đã thêm $_quantity ${widget.food.name} vào giỏ!',
+                  onPressed: () {
+                    final cart = Provider.of<CartProvider>(context, listen: false);
+                    
+                    // Thêm số lượng tương ứng vào giỏ hàng
+                    for(int i = 0; i < _quantity; i++) {
+                      cart.addItem(
+                        widget.food.id, 
+                        "${widget.food.name} ($_selectedSize)", 
+                        pricePerUnit.toInt()
+                      );
+                    }
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Đã thêm $_quantity ${widget.food.name} vào giỏ hàng!'),
+                        backgroundColor: Colors.green,
+                        duration: const Duration(seconds: 1),
                       ),
-                    ),
-                  ),
+                    );
+
+                    Navigator.pop(context);
+                  },
                   child: Text(
-                    'Thêm • $totalPrice đ',
+                    'Thêm • ${finalTotal.toInt()} đ',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
