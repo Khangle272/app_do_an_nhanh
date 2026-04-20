@@ -2,6 +2,7 @@ import 'package:app_do_an_nhanh/screens/order_tracking_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
+import '../widgets/custom_app_bar.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -21,10 +22,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final cart = Provider.of<CartProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Thanh toán'),
-        backgroundColor: Colors.red,
-        foregroundColor: Colors.white,
+      appBar: CustomAppBar(
+        title: 'Thanh toán',
+        onBackPressed: () => Navigator.pop(context),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

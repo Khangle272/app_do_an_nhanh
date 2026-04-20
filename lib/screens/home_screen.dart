@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:app_do_an_nhanh/utils/app_colors.dart';
 import '../models/food_model.dart';
+import '../widgets/custom_app_bar.dart';
 import 'product_detail_screen.dart';
 import 'search_screen.dart';
 
@@ -11,7 +12,13 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: _buildAppBar(),
+      appBar: CustomAppBar(
+        title: 'Trang chủ',
+        showBackButton: false,
+        centerTitle: true,
+        showNotification: true,
+        onNotificationTap: () {},
+      ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Padding(
@@ -36,39 +43,6 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  AppBar _buildAppBar() {
-    return AppBar(
-      elevation: 0,
-      backgroundColor: AppColors.primary,
-      surfaceTintColor: Colors.transparent,
-      title: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Giao đến',
-            style: TextStyle(color: Colors.white70, fontSize: 12),
-          ),
-          Text(
-            'HUIT, Tân Phú, TP.HCM',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-          onPressed: () {},
-        ),
-      ],
     );
   }
 
