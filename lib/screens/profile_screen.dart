@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/app_colors.dart';
+import 'order_history_screen.dart';
 import 'order_tracking_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -51,7 +52,20 @@ class ProfileScreen extends StatelessWidget {
                 _buildProfileItem(
                   icon: Icons.history,
                   title: 'Đơn hàng của tôi',
-                  subtitle: 'Theo dõi các đơn hàng đang giao',
+                  subtitle: 'Xem danh sách đơn hàng đã đặt',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const OrderHistoryScreen(),
+                      ),
+                    );
+                  },
+                ),
+                _buildProfileItem(
+                  icon: Icons.local_shipping_outlined,
+                  title: 'Theo dõi đơn đang giao',
+                  subtitle: 'Xem trạng thái đơn hiện tại',
                   onTap: () {
                     Navigator.push(
                       context,
