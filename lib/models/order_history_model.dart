@@ -14,6 +14,12 @@ class OrderHistoryItem {
     required this.status,
     required this.paymentMethod,
   });
+
+  String? get name => null;
+
+  String? get phone => null;
+
+  String? get address => null;
 }
 
 const List<OrderHistoryItem> mockOrders = [

@@ -102,6 +102,9 @@ class _OrderHistoryCard extends StatelessWidget {
                       MaterialPageRoute(
                         builder: (_) => OrderTrackingScreen(
                           paymentMethod: order.paymentMethod,
+                          name: order.name,
+                          phone: order.phone,
+                          address: order.address,
                         ),
                       ),
                     );
