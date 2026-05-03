@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:app_do_an_nhanh/utils/app_colors.dart';
+import 'package:app_do_an_nhanh/providers/order_provider.dart';
 import 'package:app_do_an_nhanh/screens/order_history_screen.dart';
 import 'package:app_do_an_nhanh/screens/order_tracking_screen.dart';
 
@@ -67,13 +69,31 @@ class ProfileScreen extends StatelessWidget {
                   title: 'Theo dõi đơn đang giao',
                   subtitle: 'Xem trạng thái đơn hiện tại',
                   onTap: () {
-                    Navigator.push(
+                    final latestOrder = Provider.of<OrderProvider>(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            const OrderTrackingScreen(paymentMethod: 1),
-                      ),
-                    );
+                      listen: false,
+                    ).latestOrder;
+
+                    if (latestOrder != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => OrderTrackingScreen(
+                            paymentMethod: latestOrder.paymentMethod,
+                            name: latestOrder.name,
+                            phone: latestOrder.phone,
+                            address: latestOrder.address,
+                            totalAmount: latestOrder.total,
+                          ),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Chưa có đơn hàng nào đang giao"),
+                        ),
+                      );
+                    }
                   },
                 ),
                 _buildProfileItem(

@@ -3,13 +3,35 @@ import 'package:app_do_an_nhanh/utils/app_colors.dart';
 import 'package:app_do_an_nhanh/widgets/custom_app_bar.dart';
 
 class OrderTrackingScreen extends StatelessWidget {
-  // Thêm biến này để nhận dữ liệu từ Checkout gửi sang
-  final int paymentMethod; // 1: Tiền mặt, 2: MoMo
+  final int paymentMethod; // 1: COD, 2: MoMo
+  final String name;
+  final String phone;
+  final String address;
+  final String totalAmount; // nhận từ OrderHistoryItem
 
-  const OrderTrackingScreen({super.key, required this.paymentMethod});
+  const OrderTrackingScreen({
+    super.key,
+    required this.paymentMethod,
+    required this.name,
+    required this.phone,
+    required this.address,
+    required this.totalAmount,
+  });
 
   @override
   Widget build(BuildContext context) {
+    // Tính thời gian giao hàng dự kiến
+    DateTime orderTime = DateTime.now();
+    DateTime startTime = orderTime.add(const Duration(minutes: 30));
+    DateTime endTime = orderTime.add(const Duration(minutes: 40));
+
+    String formatTime(DateTime time) {
+      return "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
+    }
+
+    String deliveryTimeRange =
+        "${formatTime(startTime)} - ${formatTime(endTime)}";
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
@@ -31,24 +53,27 @@ class OrderTrackingScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // 1. Phần Trạng thái Timeline Ngang
+            // 1. Thời gian giao hàng dự kiến
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 children: [
-                  const Align(
+                  Align(
                     alignment: Alignment.centerLeft,
-                    child: Text('16:30 - 16:40',
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold)),
+                    child: Text(
+                      deliveryTimeRange,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 5),
                   const Row(
                     children: [
                       Text('Đúng giờ',
                           style: TextStyle(
-                              color: AppColors
-                                  .primary, // Đổi sang màu đỏ chuẩn của bạn
+                              color: AppColors.primary,
                               fontWeight: FontWeight.bold)),
                       Text(' • Bếp đang chuẩn bị đơn của bạn.'),
                     ],
@@ -59,14 +84,11 @@ class OrderTrackingScreen extends StatelessWidget {
                       const Icon(Icons.restaurant,
                           color: AppColors.primary, size: 20),
                       Expanded(
-                          child: Container(
-                              height: 3,
-                              color: AppColors.primary)), // Đổi sang RED
+                          child:
+                              Container(height: 3, color: AppColors.primary)),
                       const Icon(Icons.pedal_bike,
                           color: Colors.grey, size: 20),
-                      Expanded(
-                          child: Container(
-                              height: 3, color: Colors.grey.shade300)),
+                      Expanded(child: Container(height: 3, color: Colors.grey)),
                       const Icon(Icons.home, color: Colors.grey, size: 20),
                     ],
                   ),
@@ -78,7 +100,7 @@ class OrderTrackingScreen extends StatelessWidget {
             // 2. Thông tin Quán ăn
             const ListTile(
               leading: CircleAvatar(
-                  backgroundColor: AppColors.primary, // Đổi sang RED
+                  backgroundColor: AppColors.primary,
                   child: Icon(Icons.store, color: Colors.white)),
               title: Text('FastFood',
                   style: TextStyle(fontWeight: FontWeight.bold)),
@@ -94,13 +116,13 @@ class OrderTrackingScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      // LOGIC: Thay đổi Icon và Chữ dựa trên paymentMethod
                       Icon(
                           paymentMethod == 1
                               ? Icons.payments
                               : Icons.credit_card,
-                          color:
-                              paymentMethod == 1 ? Colors.orange : Colors.blue,
+                          color: paymentMethod == 1
+                              ? const Color.fromARGB(255, 15, 185, 15)
+                              : Colors.blue,
                           size: 20),
                       const SizedBox(width: 10),
                       Text(paymentMethod == 1 ? 'Tiền mặt (COD)' : 'Ví MoMo',
@@ -108,18 +130,17 @@ class OrderTrackingScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 15),
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Tổng cộng',
+                      const Text('Tổng cộng',
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold)),
-                      Text('115.000đ',
-                          style: TextStyle(
+                      Text(totalAmount,
+                          style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: AppColors
-                                  .primary)), // Đổi sang RED cho nổi bật
+                              color: AppColors.primary)),
                     ],
                   ),
                 ],
@@ -127,26 +148,36 @@ class OrderTrackingScreen extends StatelessWidget {
             ),
             const Divider(thickness: 8, color: AppColors.background),
 
-            // 4. Địa chỉ giao hàng
-            const Padding(
-              padding: EdgeInsets.all(16),
+            // 4. Thông tin giao hàng khách nhập
+            Padding(
+              padding: const EdgeInsets.all(16),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.radio_button_checked,
-                          color: AppColors.primary, size: 16), // Đổi sang RED
-                      SizedBox(width: 10),
-                      Text('FastFood - 123A Hậu Giang'),
+                      const Icon(Icons.person,
+                          color: AppColors.primary, size: 16),
+                      const SizedBox(width: 10),
+                      Text(name),
                     ],
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   Row(
                     children: [
-                      Icon(Icons.location_on,
-                          color: AppColors.primary, size: 16), // Đổi sang RED
-                      SizedBox(width: 10),
-                      Text('Chung cư Tân Phú - Tòa B'),
+                      const Icon(Icons.phone,
+                          color: AppColors.primary, size: 16),
+                      const SizedBox(width: 10),
+                      Text(phone),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on,
+                          color: AppColors.primary, size: 16),
+                      const SizedBox(width: 10),
+                      Text(address),
                     ],
                   ),
                 ],

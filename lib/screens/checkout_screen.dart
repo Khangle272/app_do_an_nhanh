@@ -1,10 +1,12 @@
-import 'package:app_do_an_nhanh/screens/order_tracking_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app_do_an_nhanh/providers/cart_provider.dart';
+import 'package:app_do_an_nhanh/providers/order_provider.dart';
 import 'package:app_do_an_nhanh/widgets/custom_app_bar.dart';
 import 'package:app_do_an_nhanh/widgets/primary_button.dart';
 import 'package:app_do_an_nhanh/utils/app_colors.dart';
+import 'package:app_do_an_nhanh/models/order_history_model.dart';
+import 'package:app_do_an_nhanh/screens/order_tracking_screen.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -14,9 +16,10 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
 
-  // Bước 1: Sửa String thành int (1: Tiền mặt, 2: MoMo) để khớp với trang Tracking
   int _selectedPayment = 1;
 
   @override
@@ -35,8 +38,27 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Địa chỉ giao hàng',
+              'Thông tin giao hàng',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'Họ và tên người nhận',
+                prefixIcon: Icon(Icons.person, color: AppColors.primary),
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _phoneController,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'Số điện thoại',
+                prefixIcon: Icon(Icons.phone, color: AppColors.primary),
+              ),
             ),
             const SizedBox(height: 10),
             TextField(
@@ -52,8 +74,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               'Phương thức thanh toán',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-
-            // Bước 2: Cập nhật ListTile cho Tiền mặt (value: 1)
             ListTile(
               title: const Text('Tiền mặt (COD)'),
               leading: Radio<int>(
@@ -62,8 +82,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 onChanged: (value) => setState(() => _selectedPayment = value!),
               ),
             ),
-
-            // Bước 3: Cập nhật ListTile cho MoMo (value: 2)
             ListTile(
               title: const Text('Ví điện tử MoMo'),
               leading: Radio<int>(
@@ -72,7 +90,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 onChanged: (value) => setState(() => _selectedPayment = value!),
               ),
             ),
-
             const Spacer(),
             const Divider(),
             Row(
@@ -80,7 +97,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               children: [
                 const Text('Tổng tiền:', style: TextStyle(fontSize: 18)),
                 Text(
-                  '${cart.totalAmount} đ',
+                  '${cart.totalAmount.toInt()} đ',
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -93,23 +110,59 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             PrimaryButton(
               text: 'XÁC NHẬN ĐẶT HÀNG',
               onPressed: () {
-                // Kiểm tra địa chỉ trước khi đặt
+                if (_nameController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Vui lòng nhập tên người nhận!')),
+                  );
+                  return;
+                }
+                if (_phoneController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Vui lòng nhập số điện thoại!')),
+                  );
+                  return;
+                }
                 if (_addressController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Vui lòng nhập địa chỉ giao hàng!')),
+                    const SnackBar(content: Text('Vui lòng nhập địa chỉ giao hàng!')),
                   );
                   return;
                 }
 
+                final totalStr = '${cart.totalAmount.toInt()} đ';
+                final now = DateTime.now();
+                final dateStr =
+                    '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year} - ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+
+                final order = OrderHistoryItem(
+                  code: '#DH${now.millisecondsSinceEpoch % 100000}',
+                  date: dateStr,
+                  itemsSummary: cart.items.values
+                      .map((i) => '${i.quantity}x ${i.title}')
+                      .join(', '),
+                  total: totalStr,
+                  status: 'Đang giao',
+                  paymentMethod: _selectedPayment,
+                  name: _nameController.text.trim(),
+                  phone: _phoneController.text.trim(),
+                  address: _addressController.text.trim(),
+                );
+
+                Provider.of<OrderProvider>(context, listen: false)
+                    .addOrder(order, deliveryDuration: const Duration(minutes: 30));
+
                 cart.clearCart();
 
-                // Chuyển trang
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        OrderTrackingScreen(paymentMethod: _selectedPayment),
+                    builder: (context) => OrderTrackingScreen(
+                      paymentMethod: _selectedPayment,
+                      name: order.name,
+                      phone: order.phone,
+                      address: order.address,
+                      totalAmount: totalStr,
+                    ),
                   ),
                   (route) => false,
                 );
@@ -127,6 +180,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   @override
   void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
     _addressController.dispose();
     super.dispose();
   }

@@ -5,6 +5,7 @@ import 'package:app_do_an_nhanh/screens/onboarding_screen.dart';
 import 'package:app_do_an_nhanh/screens/login_screen.dart';
 import 'package:app_do_an_nhanh/screens/register_screen.dart';
 import 'package:app_do_an_nhanh/screens/main_layout.dart';
+import 'package:app_do_an_nhanh/providers/order_provider.dart';
 import 'package:app_do_an_nhanh/utils/app_theme.dart';
 
 void main() {
@@ -12,6 +13,7 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => OrderProvider()),
       ],
       child: const FastFoodApp(),
     ),

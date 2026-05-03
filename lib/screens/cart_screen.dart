@@ -1,6 +1,6 @@
-import 'package:app_do_an_nhanh/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:app_do_an_nhanh/widgets/custom_app_bar.dart';
 import 'package:app_do_an_nhanh/providers/cart_provider.dart';
 import 'package:app_do_an_nhanh/utils/app_colors.dart';
 import 'package:app_do_an_nhanh/screens/checkout_screen.dart';
@@ -20,7 +20,6 @@ class CartScreen extends StatelessWidget {
         showBackButton: false,
         centerTitle: true,
       ),
-      // LOGIC: Nếu giỏ hàng trống hiện giao diện Empty, ngược lại hiện danh sách
       body: cartItems.isEmpty
           ? _buildEmptyState(context)
           : Column(
@@ -29,7 +28,6 @@ class CartScreen extends StatelessWidget {
                   child: ListView.builder(
                     itemCount: cartItems.length,
                     itemBuilder: (ctx, i) => Dismissible(
-                      // TÍNH NĂNG: Vuốt để xóa (Swipe to delete)
                       key: ValueKey(cartItems[i].id),
                       direction: DismissDirection.endToStart,
                       background: Container(
@@ -42,10 +40,7 @@ class CartScreen extends StatelessWidget {
                             color: Colors.white, size: 30),
                       ),
                       onDismissed: (direction) {
-                        // Gọi hàm xóa món khỏi giỏ hàng
                         cart.decrementQuantity(productIds[i]);
-                        // Lưu ý: Nếu muốn xóa sạch món đó luôn thay vì giảm 1,
-                        // bạn có thể thêm hàm remove hoàn toàn vào Provider.
                       },
                       child: Card(
                         margin: const EdgeInsets.symmetric(
@@ -98,15 +93,12 @@ class CartScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-
-                // Thanh Tổng tiền và Nút Thanh toán
                 _buildBottomSummary(context, cart),
               ],
             ),
     );
   }
 
-  // 1. Giao diện khi giỏ hàng TRỐNG (Empty State)
   Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: Column(
@@ -130,8 +122,7 @@ class CartScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10)),
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
             ),
-            onPressed: () =>
-                Navigator.pushNamed(context, '/main'), // Điều hướng về Home
+            onPressed: () => Navigator.pushNamed(context, '/main'),
             child: const Text('MUA SẮM NGAY',
                 style: TextStyle(
                     color: Colors.white, fontWeight: FontWeight.bold)),
@@ -141,7 +132,6 @@ class CartScreen extends StatelessWidget {
     );
   }
 
-  // 2. Widget Summary dưới cùng
   Widget _buildBottomSummary(BuildContext context, CartProvider cart) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -175,13 +165,16 @@ class CartScreen extends StatelessWidget {
               ],
             ),
             ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const CheckoutScreen()),
-                );
-              },
+              onPressed: cart.items.isEmpty
+                  ? null
+                  : () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CheckoutScreen(),
+                        ),
+                      );
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 padding:
