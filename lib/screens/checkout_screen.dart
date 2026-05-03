@@ -1,8 +1,10 @@
 import 'package:app_do_an_nhanh/screens/order_tracking_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/cart_provider.dart';
-import '../widgets/custom_app_bar.dart';
+import 'package:app_do_an_nhanh/providers/cart_provider.dart';
+import 'package:app_do_an_nhanh/widgets/custom_app_bar.dart';
+import 'package:app_do_an_nhanh/widgets/primary_button.dart';
+import 'package:app_do_an_nhanh/utils/app_colors.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -82,13 +84,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Colors.red,
+                    color: AppColors.primary,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
+            PrimaryButton(
+              text: 'XÁC NHẬN ĐẶT HÀNG',
               onPressed: () {
                 // Kiểm tra địa chỉ trước khi đặt
                 if (_addressController.text.trim().isEmpty) {
@@ -101,7 +104,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
                 cart.clearCart();
 
-                // Bước 4: Chuyển trang (Đã bỏ const và truyền biến int vào)
+                // Chuyển trang
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
@@ -111,14 +114,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   (route) => false,
                 );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                minimumSize: const Size(double.infinity, 50),
-              ),
-              child: const Text(
-                'XÁC NHẬN ĐẶT HÀNG',
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
+              backgroundColor: AppColors.primary,
+              textColor: Colors.white,
+              width: double.infinity,
+              height: 50,
             ),
           ],
         ),

@@ -47,7 +47,7 @@ class _SearchScreenState extends State<SearchScreen> {
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
-          onPressed: () => Navigator.pushReplacementNamed(context, "/main"),
+          onPressed: () => Navigator.pushNamed(context, '/main'),
         ),
         title: TextField(
           controller: _searchController,

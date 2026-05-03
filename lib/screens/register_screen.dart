@@ -23,10 +23,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Center(
+                Center(
                   child: Text(
                     "Đăng ký",
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textMain,
+                        ),
                   ),
                 ),
 
