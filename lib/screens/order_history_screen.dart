@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-
-import '../utils/app_colors.dart';
-import '../widgets/custom_app_bar.dart';
-import 'order_tracking_screen.dart';
-import '../models/order_history_model.dart';
+import 'package:app_do_an_nhanh/utils/app_colors.dart';
+import 'package:app_do_an_nhanh/widgets/custom_app_bar.dart';
+import 'package:app_do_an_nhanh/screens/order_tracking_screen.dart';
+import 'package:app_do_an_nhanh/models/order_history_model.dart';
 
 class OrderHistoryScreen extends StatelessWidget {
   const OrderHistoryScreen({super.key});
@@ -45,7 +44,7 @@ class _OrderHistoryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -134,7 +133,7 @@ class _StatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(30),
       ),
       child: Text(

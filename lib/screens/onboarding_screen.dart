@@ -31,31 +31,25 @@ class OnboardingScreen extends StatelessWidget {
                     color: AppColors.primary,
                   ),
                 ),
-
                 const SizedBox(height: 36),
-
                 Text(
                   "Đồ ăn nhanh",
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textMain,
-                  ),
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textMain,
+                      ),
                 ),
-
                 const SizedBox(height: 12),
-
                 Text(
                   "Khám phá các món ăn nhanh ngon và rẻ",
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Colors.black,
-                    height: 1.5,
-                  ),
+                        color: AppColors.textMain,
+                        height: 1.5,
+                      ),
                 ),
-
                 const SizedBox(height: 24),
-
                 PrimaryButton(
                   text: "Bắt đầu",
                   onPressed: () {

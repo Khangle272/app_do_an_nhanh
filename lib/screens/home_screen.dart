@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:app_do_an_nhanh/utils/app_colors.dart';
-import '../models/food_model.dart';
-import '../widgets/custom_app_bar.dart';
-import 'product_detail_screen.dart';
-import 'search_screen.dart';
+import 'package:app_do_an_nhanh/models/food_model.dart';
+import 'package:app_do_an_nhanh/widgets/custom_app_bar.dart';
+import 'package:app_do_an_nhanh/screens/product_detail_screen.dart';
+import 'package:app_do_an_nhanh/screens/search_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -61,7 +61,7 @@ class HomeScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -69,7 +69,7 @@ class HomeScreen extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(Icons.search, color: AppColors.primary.withOpacity(0.6)),
+            Icon(Icons.search, color: AppColors.primary.withValues(alpha: 0.6)),
             const SizedBox(width: 12),
             Text(
               'Bạn muốn ăn gì hôm nay?',
@@ -94,14 +94,17 @@ class HomeScreen extends StatelessWidget {
             margin: const EdgeInsets.only(right: 16),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [AppColors.primary, AppColors.primary.withOpacity(0.7)],
+                colors: [
+                  AppColors.primary,
+                  AppColors.primary.withValues(alpha: 0.7)
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.2),
+                  color: AppColors.primary.withValues(alpha: 0.2),
                   blurRadius: 12,
                   offset: const Offset(0, 6),
                 ),
@@ -117,7 +120,7 @@ class HomeScreen extends StatelessWidget {
                     height: 120,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withOpacity(0.1),
+                      color: Colors.white.withValues(alpha: 0.1),
                     ),
                   ),
                 ),
@@ -178,8 +181,8 @@ class HomeScreen extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: isSelected
-                ? AppColors.primary.withOpacity(0.15)
-                : Colors.black.withOpacity(0.05),
+                ? AppColors.primary.withValues(alpha: 0.15)
+                : Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -233,7 +236,7 @@ class PopularFoodCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -296,7 +299,7 @@ class PopularFoodCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.12),
+                color: AppColors.primary.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.add, color: AppColors.primary, size: 24),
