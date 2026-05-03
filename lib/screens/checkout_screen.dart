@@ -1,141 +1,185 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/cart_provider.dart';
+import '../utils/app_colors.dart';
+import '../widgets/custom_app_bar.dart';
 import 'order_tracking_screen.dart';
+import '../models/order_history_model.dart';
+import '../providers/order_provider.dart';
 
-class CheckoutScreen extends StatefulWidget {
+class CheckoutScreen extends StatelessWidget {
   const CheckoutScreen({super.key});
 
   @override
-  State<CheckoutScreen> createState() => _CheckoutScreenState();
+  Widget build(BuildContext context) {
+    final orders = Provider.of<OrderProvider>(context).orders;
+
+    return Scaffold(
+      appBar: CustomAppBar(
+        title: 'Lịch sử đơn hàng',
+        centerTitle: true,
+      ),
+      body: orders.isEmpty
+          ? const _EmptyHistory()
+          : ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: orders.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                final order = orders[index];
+                return _OrderHistoryCard(order: order);
+              },
+            ),
+    );
+  }
 }
 
-class _CheckoutScreenState extends State<CheckoutScreen> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController addressController = TextEditingController();
+class _OrderHistoryCard extends StatelessWidget {
+  final OrderHistoryItem order;
 
-  String _paymentMethod = "COD"; // mặc định chọn COD
+  const _OrderHistoryCard({required this.order});
 
   @override
   Widget build(BuildContext context) {
-    final cart = Provider.of<CartProvider>(context);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Thanh toán"),
-        backgroundColor: Colors.red,
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Thông tin giao hàng",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: "Họ và tên",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: phoneController,
-              keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(
-                labelText: "Số điện thoại",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: addressController,
-              decoration: const InputDecoration(
-                labelText: "Địa chỉ chi tiết (Số nhà, tên đường, phường...)",
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 20),
-            const Text("Phương thức thanh toán",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            ListTile(
-              leading: Radio<String>(
-                value: "COD",
-                groupValue: _paymentMethod,
-                onChanged: (value) {
-                  setState(() {
-                    _paymentMethod = value!;
-                  });
-                },
-              ),
-              title: const Text("Tiền mặt (COD)"),
-            ),
-            ListTile(
-              leading: Radio<String>(
-                value: "MoMo",
-                groupValue: _paymentMethod,
-                onChanged: (value) {
-                  setState(() {
-                    _paymentMethod = value!;
-                  });
-                },
-              ),
-              title: const Text("Ví điện tử MoMo"),
-            ),
-            const SizedBox(height: 20),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("Tổng tiền:",
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                Text("${cart.totalAmount.toInt()} đ",
+                Expanded(
+                  child: Text(
+                    order.code,
                     style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold)),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                _StatusChip(status: order.status),
               ],
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                final name = nameController.text;
-                final phone = phoneController.text;
-                final address = addressController.text;
-
-                if (name.isEmpty || phone.isEmpty || address.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text("Vui lòng nhập đầy đủ thông tin")),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Đặt hàng thành công cho $name")),
-                  );
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => OrderTrackingScreen(
-                        paymentMethod: _paymentMethod == "COD" ? 1 : 2,
-                        name: name,
-                        phone: phone,
-                        address: address,
+            const SizedBox(height: 8),
+            Text(
+              order.date,
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              order.itemsSummary,
+              style: const TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Text(
+                  'Tổng tiền: ',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                Text(
+                  order.total,
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => OrderTrackingScreen(
+                          paymentMethod: order.paymentMethod,
+                          name: order.name,
+                          phone: order.phone,
+                          address: order.address,
+                          totalAmount: order.total,
+                        ),
                       ),
-                    ),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                minimumSize: const Size(double.infinity, 50),
-              ),
-              child: const Text("XÁC NHẬN ĐẶT HÀNG",
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
+                    );
+                  },
+                  child: const Text('Xem chi tiết'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  final String status;
+
+  const _StatusChip({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = switch (status) {
+      'Đã giao' => Colors.green,
+      'Đang giao' => Colors.orange,
+      'Đã hủy' => Colors.red,
+      _ => Colors.blueGrey,
+    };
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Text(
+        status,
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyHistory extends StatelessWidget {
+  const _EmptyHistory();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.receipt_long_outlined,
+              size: 88,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Bạn chưa có đơn hàng nào',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Đơn hàng sau khi thanh toán sẽ hiển thị tại đây',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey.shade600),
             ),
           ],
         ),

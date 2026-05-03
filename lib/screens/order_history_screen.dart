@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
 import '../utils/app_colors.dart';
 import '../widgets/custom_app_bar.dart';
 import 'order_tracking_screen.dart';
 import '../models/order_history_model.dart';
+import '../providers/order_provider.dart';
 
 class OrderHistoryScreen extends StatelessWidget {
   const OrderHistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    const orders = mockOrders;
+    final orders = Provider.of<OrderProvider>(context).orders;
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -105,6 +106,7 @@ class _OrderHistoryCard extends StatelessWidget {
                           name: order.name,
                           phone: order.phone,
                           address: order.address,
+                          totalAmount: order.total,
                         ),
                       ),
                     );

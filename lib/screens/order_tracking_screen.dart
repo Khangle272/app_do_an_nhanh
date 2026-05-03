@@ -3,11 +3,11 @@ import '../utils/app_colors.dart';
 import '../widgets/custom_app_bar.dart';
 
 class OrderTrackingScreen extends StatelessWidget {
-  // Nhận dữ liệu từ Checkout gửi sang
-  final int paymentMethod; // 1: Tiền mặt, 2: MoMo
-  final String name; // họ tên khách
-  final String phone; // số điện thoại khách
-  final String address; // địa chỉ khách nhập
+  final int paymentMethod; // 1: COD, 2: MoMo
+  final String name;
+  final String phone;
+  final String address;
+  final String totalAmount; // nhận từ OrderHistoryItem
 
   const OrderTrackingScreen({
     super.key,
@@ -15,6 +15,7 @@ class OrderTrackingScreen extends StatelessWidget {
     required this.name,
     required this.phone,
     required this.address,
+    required this.totalAmount,
   });
 
   @override
@@ -129,14 +130,14 @@ class OrderTrackingScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 15),
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Tổng cộng',
+                      const Text('Tổng cộng',
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold)),
-                      Text('115.000đ',
-                          style: TextStyle(
+                      Text(totalAmount,
+                          style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: AppColors.primary)),
