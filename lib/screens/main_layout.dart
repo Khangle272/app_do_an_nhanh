@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../utils/app_colors.dart';
-import 'home_screen.dart';
-import 'search_screen.dart';
-import 'cart_screen.dart';
-import 'profile_screen.dart';
+import 'package:app_do_an_nhanh/utils/app_colors.dart';
+import 'package:app_do_an_nhanh/screens/home_screen.dart';
+import 'package:app_do_an_nhanh/screens/search_screen.dart';
+import 'package:app_do_an_nhanh/screens/cart_screen.dart';
+import 'package:app_do_an_nhanh/screens/profile_screen.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -31,8 +31,15 @@ class _MainLayoutState extends State<MainLayout> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> screens = [
+      const HomeScreen(),
+      const SearchScreen(),
+      const CartScreen(),
+      const ProfileScreen(),
+    ];
+
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onItemTapped,

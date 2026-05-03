@@ -6,6 +6,7 @@ import 'package:app_do_an_nhanh/screens/login_screen.dart';
 import 'package:app_do_an_nhanh/screens/register_screen.dart';
 import 'package:app_do_an_nhanh/screens/main_layout.dart';
 import 'package:app_do_an_nhanh/providers/order_provider.dart';
+import 'package:app_do_an_nhanh/utils/app_theme.dart';
 
 void main() {
   runApp(
@@ -26,6 +27,8 @@ class FastFoodApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      title: 'Đồ ăn nhanh',
+      theme: AppTheme.lightTheme,
       initialRoute: '/',
       routes: {
         '/': (context) => const OnboardingScreen(),

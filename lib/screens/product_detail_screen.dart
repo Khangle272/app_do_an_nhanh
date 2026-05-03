@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:app_do_an_nhanh/utils/app_colors.dart';
-import '../models/food_model.dart';
+import 'package:app_do_an_nhanh/models/food_model.dart';
 import 'package:provider/provider.dart';
-import '../providers/cart_provider.dart';
-import '../widgets/custom_app_bar.dart';
+import 'package:app_do_an_nhanh/providers/cart_provider.dart';
+import 'package:app_do_an_nhanh/widgets/custom_app_bar.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Food food;
@@ -176,10 +176,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         value: isSelected,
                         onChanged: (bool? value) {
                           setState(() {
-                            if (value == true)
+                            if (value == true) {
                               _selectedToppings.add(topping['name']);
-                            else
+                            } else {
                               _selectedToppings.remove(topping['name']);
+                            }
                           });
                         },
                       );
@@ -214,7 +215,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),

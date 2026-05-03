@@ -1,189 +1,188 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../utils/app_colors.dart';
-import '../widgets/custom_app_bar.dart';
-import 'order_tracking_screen.dart';
-import '../models/order_history_model.dart';
-import '../providers/order_provider.dart';
+import 'package:app_do_an_nhanh/providers/cart_provider.dart';
+import 'package:app_do_an_nhanh/providers/order_provider.dart';
+import 'package:app_do_an_nhanh/widgets/custom_app_bar.dart';
+import 'package:app_do_an_nhanh/widgets/primary_button.dart';
+import 'package:app_do_an_nhanh/utils/app_colors.dart';
+import 'package:app_do_an_nhanh/models/order_history_model.dart';
+import 'package:app_do_an_nhanh/screens/order_tracking_screen.dart';
 
-class CheckoutScreen extends StatelessWidget {
+class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
 
   @override
+  State<CheckoutScreen> createState() => _CheckoutScreenState();
+}
+
+class _CheckoutScreenState extends State<CheckoutScreen> {
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _addressController = TextEditingController();
+
+  int _selectedPayment = 1;
+
+  @override
   Widget build(BuildContext context) {
-    final orders = Provider.of<OrderProvider>(context).orders;
+    final cart = Provider.of<CartProvider>(context);
 
     return Scaffold(
       appBar: CustomAppBar(
-        title: 'Lịch sử đơn hàng',
+        title: 'Thanh toán',
+        onBackPressed: () => Navigator.pop(context),
         centerTitle: true,
       ),
-      body: orders.isEmpty
-          ? const _EmptyHistory()
-          : ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: orders.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final order = orders[index];
-                return _OrderHistoryCard(order: order);
-              },
-            ),
-    );
-  }
-}
-
-class _OrderHistoryCard extends StatelessWidget {
-  final OrderHistoryItem order;
-
-  const _OrderHistoryCard({required this.order});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    order.code,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-                _StatusChip(status: order.status),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              order.date,
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              order.itemsSummary,
-              style: const TextStyle(fontSize: 14),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                const Text(
-                  'Tổng tiền: ',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  order.total,
-                  style: const TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => OrderTrackingScreen(
-                          paymentMethod: order.paymentMethod,
-                          name: order.name,
-                          phone: order.phone,
-                          address: order.address,
-                          totalAmount: order.total,
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text('Xem chi tiết'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  final String status;
-
-  const _StatusChip({required this.status});
-
-  @override
-  Widget build(BuildContext context) {
-    final color = switch (status) {
-      'Đã giao' => Colors.green,
-      'Đang giao' => Colors.orange,
-      'Đã hủy' => Colors.red,
-      _ => Colors.blueGrey,
-    };
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: Text(
-        status,
-        style: TextStyle(
-          color: color,
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
-        ),
-      ),
-    );
-  }
-}
-
-class _EmptyHistory extends StatelessWidget {
-  const _EmptyHistory();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.receipt_long_outlined,
-              size: 88,
-              color: Colors.grey.shade400,
-            ),
-            const SizedBox(height: 12),
             const Text(
-              'Bạn chưa có đơn hàng nào',
+              'Thông tin giao hàng',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Đơn hàng sau khi thanh toán sẽ hiển thị tại đây',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade600),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'Họ và tên người nhận',
+                prefixIcon: Icon(Icons.person, color: AppColors.primary),
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _phoneController,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'Số điện thoại',
+                prefixIcon: Icon(Icons.phone, color: AppColors.primary),
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _addressController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'Số nhà, tên đường, phường...',
+                prefixIcon: Icon(Icons.location_on, color: Colors.red),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Phương thức thanh toán',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            ListTile(
+              title: const Text('Tiền mặt (COD)'),
+              leading: Radio<int>(
+                value: 1,
+                groupValue: _selectedPayment,
+                onChanged: (value) => setState(() => _selectedPayment = value!),
+              ),
+            ),
+            ListTile(
+              title: const Text('Ví điện tử MoMo'),
+              leading: Radio<int>(
+                value: 2,
+                groupValue: _selectedPayment,
+                onChanged: (value) => setState(() => _selectedPayment = value!),
+              ),
+            ),
+            const Spacer(),
+            const Divider(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Tổng tiền:', style: TextStyle(fontSize: 18)),
+                Text(
+                  '${cart.totalAmount.toInt()} đ',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            PrimaryButton(
+              text: 'XÁC NHẬN ĐẶT HÀNG',
+              onPressed: () {
+                if (_nameController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Vui lòng nhập tên người nhận!')),
+                  );
+                  return;
+                }
+                if (_phoneController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Vui lòng nhập số điện thoại!')),
+                  );
+                  return;
+                }
+                if (_addressController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Vui lòng nhập địa chỉ giao hàng!')),
+                  );
+                  return;
+                }
+
+                final totalStr = '${cart.totalAmount.toInt()} đ';
+                final now = DateTime.now();
+                final dateStr =
+                    '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year} - ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+
+                final order = OrderHistoryItem(
+                  code: '#DH${now.millisecondsSinceEpoch % 100000}',
+                  date: dateStr,
+                  itemsSummary: cart.items.values
+                      .map((i) => '${i.quantity}x ${i.title}')
+                      .join(', '),
+                  total: totalStr,
+                  status: 'Đang giao',
+                  paymentMethod: _selectedPayment,
+                  name: _nameController.text.trim(),
+                  phone: _phoneController.text.trim(),
+                  address: _addressController.text.trim(),
+                );
+
+                Provider.of<OrderProvider>(context, listen: false)
+                    .addOrder(order, deliveryDuration: const Duration(minutes: 30));
+
+                cart.clearCart();
+
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => OrderTrackingScreen(
+                      paymentMethod: _selectedPayment,
+                      name: order.name,
+                      phone: order.phone,
+                      address: order.address,
+                      totalAmount: totalStr,
+                    ),
+                  ),
+                  (route) => false,
+                );
+              },
+              backgroundColor: AppColors.primary,
+              textColor: Colors.white,
+              width: double.infinity,
+              height: 50,
             ),
           ],
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    _addressController.dispose();
+    super.dispose();
   }
 }

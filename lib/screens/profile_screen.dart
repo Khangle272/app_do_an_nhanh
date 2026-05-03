@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../utils/app_colors.dart';
-import '../providers/order_provider.dart';
-import 'order_history_screen.dart';
-import 'order_tracking_screen.dart';
+import 'package:app_do_an_nhanh/utils/app_colors.dart';
+import 'package:app_do_an_nhanh/providers/order_provider.dart';
+import 'package:app_do_an_nhanh/screens/order_history_screen.dart';
+import 'package:app_do_an_nhanh/screens/order_tracking_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -149,7 +149,7 @@ Widget _buildProfileItem({
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
+            color: AppColors.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10)),
         child: Icon(icon, color: AppColors.primary),
       ),

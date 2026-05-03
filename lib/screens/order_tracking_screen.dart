@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../utils/app_colors.dart';
-import '../widgets/custom_app_bar.dart';
+import 'package:app_do_an_nhanh/utils/app_colors.dart';
+import 'package:app_do_an_nhanh/widgets/custom_app_bar.dart';
 
 class OrderTrackingScreen extends StatelessWidget {
   final int paymentMethod; // 1: COD, 2: MoMo
@@ -95,7 +95,7 @@ class OrderTrackingScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const Divider(thickness: 8, color: Color(0xFFF5F5F5)),
+            const Divider(thickness: 8, color: AppColors.background),
 
             // 2. Thông tin Quán ăn
             const ListTile(
@@ -146,7 +146,7 @@ class OrderTrackingScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const Divider(thickness: 8, color: Color(0xFFF5F5F5)),
+            const Divider(thickness: 8, color: AppColors.background),
 
             // 4. Thông tin giao hàng khách nhập
             Padding(
