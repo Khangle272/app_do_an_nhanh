@@ -19,7 +19,7 @@ class _MainLayoutState extends State<MainLayout> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const SearchScreen(),
-    CartScreen(), // ✅ bỏ const để tránh lỗi
+    const CartScreen(), // ✅ bỏ const để tránh lỗi
     const ProfileScreen(),
   ];
 

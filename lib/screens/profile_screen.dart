@@ -4,6 +4,7 @@ import 'package:app_do_an_nhanh/utils/app_colors.dart';
 import 'package:app_do_an_nhanh/providers/order_provider.dart';
 import 'package:app_do_an_nhanh/screens/order_history_screen.dart';
 import 'package:app_do_an_nhanh/screens/order_tracking_screen.dart';
+import 'package:app_do_an_nhanh/services/auth_service.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -121,8 +122,13 @@ class ProfileScreen extends StatelessWidget {
                   title: const Text('Đăng xuất',
                       style: TextStyle(
                           color: Colors.red, fontWeight: FontWeight.bold)),
-                  onTap: () =>
-                      Navigator.popUntil(context, (route) => route.isFirst),
+                  onTap: () async {
+                    await AuthService().signOut();
+                    if (context.mounted) {
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, '/login', (route) => false);
+                    }
+                  },
                 ),
               ],
             ),
