@@ -1,13 +1,112 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:app_do_an_nhanh/utils/app_colors.dart';
 import 'package:app_do_an_nhanh/providers/order_provider.dart';
 import 'package:app_do_an_nhanh/screens/order_history_screen.dart';
 import 'package:app_do_an_nhanh/screens/order_tracking_screen.dart';
 import 'package:app_do_an_nhanh/services/auth_service.dart';
+import 'package:app_do_an_nhanh/services/user_service.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final UserService _userService = UserService();
+
+  Future<void> _pickAndUploadImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      try {
+        await _userService.updateAvatar(File(pickedFile.path));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Cập nhật ảnh thành công')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Lỗi tải ảnh: $e')),
+          );
+        }
+      }
+    }
+  }
+
+  void _showEditProfileDialog(Map<String, dynamic> userData) {
+    final nameController = TextEditingController(text: userData['name'] ?? '');
+    final phoneController =
+        TextEditingController(text: userData['phone'] ?? '');
+    final addressController =
+        TextEditingController(text: userData['address'] ?? '');
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Chỉnh sửa thông tin'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Tên'),
+                ),
+                TextField(
+                  controller: phoneController,
+                  decoration: const InputDecoration(labelText: 'Số điện thoại'),
+                  keyboardType: TextInputType.phone,
+                ),
+                TextField(
+                  controller: addressController,
+                  decoration: const InputDecoration(labelText: 'Địa chỉ'),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  await _userService.updateUserInfo(
+                    nameController.text.trim(),
+                    phoneController.text.trim(),
+                    addressController.text.trim(),
+                  );
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Cập nhật thành công')),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Lỗi cập nhật: $e')),
+                    );
+                  }
+                }
+              },
+              child: const Text('Lưu'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,34 +114,89 @@ class ProfileScreen extends StatelessWidget {
       child: Column(
         children: [
           // Header Profile
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 40),
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
-            ),
-            child: const Column(
-              children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.white,
-                  child: Icon(Icons.person, size: 60, color: AppColors.primary),
+          StreamBuilder<DocumentSnapshot>(
+            stream: _userService.getCurrentUserData(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (!snapshot.hasData || snapshot.data == null) {
+                return const SizedBox();
+              }
+
+              final userData =
+                  snapshot.data!.data() as Map<String, dynamic>? ?? {};
+              final avatarUrl = userData['avatarUrl'];
+              final name = userData['name'] ?? 'Chưa cập nhật tên';
+              final email = userData['email'] ?? '';
+
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius:
+                      BorderRadius.vertical(bottom: Radius.circular(30)),
                 ),
-                SizedBox(height: 15),
-                Text(
-                  'Nhóm Trưởng IT',
-                  style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
+                child: Column(
+                  children: [
+                    Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundColor: Colors.white,
+                          backgroundImage: avatarUrl != null
+                              ? NetworkImage(avatarUrl)
+                              : null,
+                          child: avatarUrl == null
+                              ? const Icon(Icons.person,
+                                  size: 60, color: AppColors.primary)
+                              : null,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: GestureDetector(
+                            onTap: _pickAndUploadImage,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.camera_alt,
+                                  size: 20, color: AppColors.primary),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          name,
+                          style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.edit,
+                              color: Colors.white, size: 20),
+                          onPressed: () => _showEditProfileDialog(userData),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      email,
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                  ],
                 ),
-                Text(
-                  'nhomtruong@student.com',
-                  style: TextStyle(color: Colors.white70),
-                ),
-              ],
-            ),
+              );
+            },
           ),
 
           const SizedBox(height: 20),
