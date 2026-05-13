@@ -72,7 +72,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                       const SizedBox(width: 16),
                       Text(
-                        '${widget.food.price} đ',
+                        // Cập nhật: toInt() để xóa số .0 ở đuôi
+                        '${widget.food.price.toInt()} đ',
                         style: const TextStyle(
                           fontSize: 22,
                           color: AppColors.primary,
@@ -199,7 +200,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   Widget _buildBottomAddToCart() {
     // 1. Tính giá 1 đơn vị gồm topping
-    double pricePerUnit = widget.food.price.toDouble();
+    double pricePerUnit = widget.food.price;
     for (var topping in _toppings) {
       if (_selectedToppings.contains(topping['name'])) {
         pricePerUnit += (topping['price'] as int);
