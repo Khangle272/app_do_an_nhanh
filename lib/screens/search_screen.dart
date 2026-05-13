@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:app_do_an_nhanh/utils/app_colors.dart';
 
+import 'package:app_do_an_nhanh/models/food_model.dart';
+import 'package:app_do_an_nhanh/services/food_service.dart';
+import 'package:app_do_an_nhanh/screens/home_screen.dart';
+
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
@@ -10,6 +14,10 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
+
+  // Biến lưu kết quả tìm kiếm từ Firebase
+  Future<List<Food>>? _searchResults;
+
   final List<String> _suggestedKeywords = [
     'Gà rán KFC',
     'Trà sữa',
@@ -17,6 +25,20 @@ class _SearchScreenState extends State<SearchScreen> {
     'Pizza',
     'Mì cay',
   ];
+
+  // Hàm gọi Firebase để tìm kiếm
+  void _performSearch({double? maxPrice, double? minRating}) {
+    // Ẩn bàn phím khi bấm tìm kiếm
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    setState(() {
+      _searchResults = FoodService().searchAndFilterFoods(
+        query: _searchController.text.trim(),
+        maxPrice: maxPrice,
+        minRating: minRating,
+      );
+    });
+  }
 
   void _onSearchChanged() {
     if (mounted) {
@@ -47,7 +69,8 @@ class _SearchScreenState extends State<SearchScreen> {
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
-          onPressed: () => Navigator.pushNamed(context, '/main'),
+          onPressed: () => Navigator.pop(
+              context), // Sửa thành pop() để quay lại đúng trang trước đó
         ),
         title: TextField(
           controller: _searchController,
@@ -57,12 +80,19 @@ class _SearchScreenState extends State<SearchScreen> {
             hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
             border: InputBorder.none,
           ),
+          onSubmitted: (_) =>
+              _performSearch(), // Gọi hàm tìm kiếm khi ấn Enter trên bàn phím
         ),
         actions: [
           if (_searchController.text.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.clear, color: Colors.grey),
-              onPressed: () => setState(() => _searchController.clear()),
+              onPressed: () {
+                setState(() {
+                  _searchController.clear();
+                  _searchResults = null; // Trở về màn hình gợi ý ban đầu
+                });
+              },
             ),
           IconButton(
             icon: const Icon(Icons.tune, color: AppColors.primary),
@@ -70,46 +100,98 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Divider(color: Colors.grey.shade200, height: 1),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Gợi ý tìm kiếm',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: _suggestedKeywords.map((keyword) {
-                    return GestureDetector(
-                      onTap: () =>
-                          setState(() => _searchController.text = keyword),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(keyword),
+
+      // CHUYỂN ĐỔI UI: NẾU CHƯA TÌM KIẾM THÌ HIỆN GỢI Ý, TÌM RỒI THÌ HIỆN KẾT QUẢ
+      body: _searchResults == null
+          ? _buildDefaultView()
+          : _buildSearchResultsView(),
+    );
+  }
+
+  // UI 1: Giao diện Gợi ý tìm kiếm ban đầu
+  Widget _buildDefaultView() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Divider(color: Colors.grey.shade200, height: 1),
+        Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Gợi ý tìm kiếm',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: _suggestedKeywords.map((keyword) {
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() => _searchController.text = keyword);
+                      _performSearch(); // Tự động tìm luôn khi bấm gợi ý
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
                       ),
-                    );
-                  }).toList(),
-                ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(keyword),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // UI 2: Giao diện kết quả tìm kiếm từ Firebase
+  Widget _buildSearchResultsView() {
+    return FutureBuilder<List<Food>>(
+      future: _searchResults,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+              child: CircularProgressIndicator(color: AppColors.primary));
+        }
+        if (snapshot.hasError) {
+          return const Center(
+              child: Text('Có lỗi xảy ra trong quá trình tìm kiếm.'));
+        }
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.search_off, size: 60, color: Colors.grey.shade400),
+                const SizedBox(height: 16),
+                Text('Không tìm thấy món "${_searchController.text}"',
+                    style:
+                        TextStyle(color: Colors.grey.shade600, fontSize: 16)),
               ],
             ),
-          ),
-        ],
-      ),
+          );
+        }
+
+        final foods = snapshot.data!;
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: foods.length,
+          itemBuilder: (context, index) {
+            return PopularFoodCard(
+                food: foods[index]); // Tái sử dụng thẻ món ăn bên Trang chủ
+          },
+        );
+      },
     );
   }
 
@@ -163,7 +245,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                       const SizedBox(width: 12),
                       _buildFilterChip(
-                        '50k - 100k',
+                        'Dưới 100k', // Đổi text nhẹ cho khớp logic Firebase dễ dàng hơn
                         selectedPriceOpt == 2,
                         () => setModalState(() => selectedPriceOpt = 2),
                       ),
@@ -203,7 +285,23 @@ class _SearchScreenState extends State<SearchScreen> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () {
+                        // LOGIC KHI BẤM ÁP DỤNG BỘ LỌC
+                        Navigator.pop(context); // Đóng BottomSheet
+
+                        double? mappedMaxPrice;
+                        if (selectedPriceOpt == 1) mappedMaxPrice = 50000;
+                        if (selectedPriceOpt == 2) mappedMaxPrice = 100000;
+
+                        double? mappedMinRating;
+                        if (selectedRating == 5) mappedMinRating = 5.0;
+                        if (selectedRating == 4) mappedMinRating = 4.0;
+
+                        // Thực hiện query
+                        _performSearch(
+                            maxPrice: mappedMaxPrice,
+                            minRating: mappedMinRating);
+                      },
                       child: const Text(
                         'Áp dụng',
                         style: TextStyle(

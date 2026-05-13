@@ -5,6 +5,8 @@ import 'package:app_do_an_nhanh/widgets/custom_app_bar.dart';
 import 'package:app_do_an_nhanh/screens/product_detail_screen.dart';
 import 'package:app_do_an_nhanh/screens/search_screen.dart';
 
+import 'package:app_do_an_nhanh/services/food_service.dart';
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -38,6 +40,15 @@ class HomeScreen extends StatelessWidget {
               _buildSectionTitle('Món bán chạy'),
               const SizedBox(height: 16),
               _buildPopularFoodList(context),
+              const SizedBox(height: 24),
+              Center(
+                child: TextButton.icon(
+                  onPressed: () => FoodService().uploadMockDataToFirestore(),
+                  icon: const Icon(Icons.cloud_upload, color: Colors.grey),
+                  label: const Text('Admin: Đồng bộ dữ liệu mẫu',
+                      style: TextStyle(color: Colors.grey)),
+                ),
+              ),
               const SizedBox(height: 24),
             ],
           ),
@@ -202,12 +213,33 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildPopularFoodList(BuildContext context) {
-    return ListView.builder(
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      itemCount: popularFoods.length,
-      itemBuilder: (context, index) {
-        return PopularFoodCard(food: popularFoods[index]);
+    return StreamBuilder<List<Food>>(
+      stream: FoodService().getPopularFoodsStream(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: CircularProgressIndicator(color: AppColors.primary),
+            ),
+          );
+        }
+        if (snapshot.hasError) {
+          return Center(child: Text('Lỗi tải dữ liệu: ${snapshot.error}'));
+        }
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('Chưa có món ăn nào.'));
+        }
+
+        final foods = snapshot.data!;
+        return ListView.builder(
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: foods.length,
+          itemBuilder: (context, index) {
+            return PopularFoodCard(food: foods[index]);
+          },
+        );
       },
     );
   }
