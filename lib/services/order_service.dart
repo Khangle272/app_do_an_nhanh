@@ -1,0 +1,40 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+class OrderService {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // 1. Tạo đơn hàng mới và trả về DocumentReference để lấy id
+  Future<DocumentReference> createOrder(Map<String, dynamic> cartData) async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception("User chưa đăng nhập");
+
+    return await _firestore.collection('orders').add({
+      'userId': user.uid,
+      'items': cartData['items'], // danh sách món từ CartProvider
+      'totalPrice': cartData['totalPrice'],
+      'status': 'Đang chuẩn bị', // trạng thái mặc định
+      'createdAt': FieldValue.serverTimestamp(),
+      'name': cartData['name'],
+      'phone': cartData['phone'],
+      'address': cartData['address'],
+      'paymentMethod': cartData['paymentMethod'],
+    });
+  }
+
+  // 2. Lấy lịch sử đơn hàng của user hiện tại
+  Stream<QuerySnapshot> getOrderHistory() {
+    final user = _auth.currentUser;
+    return _firestore
+        .collection('orders')
+        .where('userId', isEqualTo: user?.uid)
+        .orderBy('createdAt', descending: true)
+        .snapshots();
+  }
+
+  // 3. Lắng nghe trạng thái đơn hàng theo thời gian thực
+  Stream<DocumentSnapshot> listenOrderStatus(String orderId) {
+    return _firestore.collection('orders').doc(orderId).snapshots();
+  }
+}

@@ -1,52 +1,65 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:app_do_an_nhanh/utils/app_colors.dart';
 import 'package:app_do_an_nhanh/widgets/custom_app_bar.dart';
 import 'package:app_do_an_nhanh/screens/order_tracking_screen.dart';
-import 'package:app_do_an_nhanh/models/order_history_model.dart';
-import 'package:app_do_an_nhanh/providers/order_provider.dart';
+import 'package:app_do_an_nhanh/services/order_service.dart';
 
 class OrderHistoryScreen extends StatelessWidget {
   const OrderHistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final orders = Provider.of<OrderProvider>(context).orders;
-
     return Scaffold(
-      appBar: CustomAppBar(
+      appBar: const CustomAppBar(
         title: 'Lịch sử đơn hàng',
         centerTitle: true,
       ),
-      body: orders.isEmpty
-          ? const _EmptyHistory()
-          : ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: orders.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final order = orders[index];
-                return _OrderHistoryCard(order: order);
-              },
-            ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: OrderService().getOrderHistory(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const _EmptyHistory();
+          }
+
+          final orders = snapshot.data!.docs;
+
+          return ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: orders.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              final order = orders[index];
+              return _OrderHistoryCard(order: order);
+            },
+          );
+        },
+      ),
     );
   }
 }
 
 class _OrderHistoryCard extends StatelessWidget {
-  final OrderHistoryItem order;
+  final QueryDocumentSnapshot order;
 
   const _OrderHistoryCard({required this.order});
 
   @override
   Widget build(BuildContext context) {
+    final items = order['items'] as List<dynamic>;
+    final itemsSummary =
+        items.map((i) => "${i['quantity']}x ${i['title']}").join(", ");
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -61,26 +74,23 @@ class _OrderHistoryCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    order.code,
+                    order.id, // document ID
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
                 ),
-                _StatusChip(status: order.status),
+                _StatusChip(status: order['status']),
               ],
             ),
             const SizedBox(height: 8),
             Text(
-              order.date,
+              (order['createdAt'] as Timestamp).toDate().toString(),
               style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
             ),
             const SizedBox(height: 10),
-            Text(
-              order.itemsSummary,
-              style: const TextStyle(fontSize: 14),
-            ),
+            Text(itemsSummary, style: const TextStyle(fontSize: 14)),
             const SizedBox(height: 10),
             Row(
               children: [
@@ -89,7 +99,7 @@ class _OrderHistoryCard extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 Text(
-                  order.total,
+                  "${order['totalPrice']} đ",
                   style: const TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.bold,
@@ -102,11 +112,12 @@ class _OrderHistoryCard extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (_) => OrderTrackingScreen(
-                          paymentMethod: order.paymentMethod,
-                          name: order.name,
-                          phone: order.phone,
-                          address: order.address,
-                          totalAmount: order.total,
+                          orderId: order.id, // ✅ truyền document ID
+                          paymentMethod: order['paymentMethod'],
+                          name: order['name'],
+                          phone: order['phone'],
+                          address: order['address'],
+                          totalAmount: "${order['totalPrice']} đ",
                         ),
                       ),
                     );
@@ -139,7 +150,7 @@ class _StatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: color.withOpacity(0.12),
         borderRadius: BorderRadius.circular(30),
       ),
       child: Text(
@@ -165,11 +176,8 @@ class _EmptyHistory extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.receipt_long_outlined,
-              size: 88,
-              color: Colors.grey.shade400,
-            ),
+            Icon(Icons.receipt_long_outlined,
+                size: 88, color: Colors.grey.shade400),
             const SizedBox(height: 12),
             const Text(
               'Bạn chưa có đơn hàng nào',

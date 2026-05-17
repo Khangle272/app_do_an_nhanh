@@ -7,6 +7,7 @@ import 'package:app_do_an_nhanh/widgets/primary_button.dart';
 import 'package:app_do_an_nhanh/utils/app_colors.dart';
 import 'package:app_do_an_nhanh/models/order_history_model.dart';
 import 'package:app_do_an_nhanh/screens/order_tracking_screen.dart';
+import 'package:app_do_an_nhanh/services/order_service.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -109,54 +110,88 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             const SizedBox(height: 20),
             PrimaryButton(
               text: 'XÁC NHẬN ĐẶT HÀNG',
-              onPressed: () {
+              onPressed: () async {
+                // 1. Kiểm tra dữ liệu nhập
                 if (_nameController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Vui lòng nhập tên người nhận!')),
+                    const SnackBar(
+                        content: Text('Vui lòng nhập tên người nhận!')),
                   );
                   return;
                 }
                 if (_phoneController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Vui lòng nhập số điện thoại!')),
+                    const SnackBar(
+                        content: Text('Vui lòng nhập số điện thoại!')),
                   );
                   return;
                 }
                 if (_addressController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Vui lòng nhập địa chỉ giao hàng!')),
+                    const SnackBar(
+                        content: Text('Vui lòng nhập địa chỉ giao hàng!')),
                   );
                   return;
                 }
 
                 final totalStr = '${cart.totalAmount.toInt()} đ';
+
+                // 2. Tạo đơn hàng trên Firestore
+                final orderService = OrderService();
+                final docRef = await orderService.createOrder({
+                  'items': cart.items.values
+                      .map((i) => {
+                            'title': i.title,
+                            'quantity': i.quantity,
+                            'price': i.price,
+                          })
+                      .toList(),
+                  'totalPrice': cart.totalAmount,
+                  'name': _nameController.text.trim(),
+                  'phone': _phoneController.text.trim(),
+                  'address': _addressController.text.trim(),
+                  'paymentMethod': _selectedPayment,
+                  'status': 'Đang chuẩn bị',
+                  'createdAt': DateTime.now(),
+                });
+
+                // 3. Tạo bản ghi local để hiển thị nhanh
                 final now = DateTime.now();
                 final dateStr =
                     '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year} - ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
 
                 final order = OrderHistoryItem(
-                  code: '#DH${now.millisecondsSinceEpoch % 100000}',
+                  code: docRef.id, // dùng document ID làm mã đơn
                   date: dateStr,
                   itemsSummary: cart.items.values
                       .map((i) => '${i.quantity}x ${i.title}')
                       .join(', '),
                   total: totalStr,
-                  status: 'Đang giao',
+                  status: 'Đang chuẩn bị',
                   paymentMethod: _selectedPayment,
                   name: _nameController.text.trim(),
                   phone: _phoneController.text.trim(),
                   address: _addressController.text.trim(),
                 );
 
-                Provider.of<OrderProvider>(context, listen: false)
-                    .addOrder(order, deliveryDuration: const Duration(minutes: 30));
+                // 🟢 gọi addOrder, không gán kết quả
+                Provider.of<OrderProvider>(context, listen: false).addOrder(
+                  order,
+                  deliveryDuration: const Duration(minutes: 30),
+                );
 
+                // 4. Clear giỏ hàng
                 cart.clearCart();
 
+                // 5. Tránh lỗi context sau async
+                if (!mounted) return;
+
+                // 6. Điều hướng sang OrderTrackingScreen
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
                     builder: (context) => OrderTrackingScreen(
+                      orderId: docRef.id, // ✅ truyền document ID
                       paymentMethod: _selectedPayment,
                       name: order.name,
                       phone: order.phone,

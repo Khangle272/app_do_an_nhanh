@@ -234,6 +234,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (_) => OrderTrackingScreen(
+                            orderId: latestOrder.code, // ✅ thêm orderId
                             paymentMethod: latestOrder.paymentMethod,
                             name: latestOrder.name,
                             phone: latestOrder.phone,
@@ -291,32 +292,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
-}
 
-Widget _buildProfileItem({
-  required IconData icon,
-  required String title,
-  required String subtitle,
-  required VoidCallback onTap,
-}) {
-  return Card(
-    elevation: 0,
-    margin: const EdgeInsets.only(bottom: 12),
-    shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-        side: BorderSide(color: Colors.grey.shade200)),
-    child: ListTile(
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(10)),
-        child: Icon(icon, color: AppColors.primary),
+  Widget _buildProfileItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+          side: BorderSide(color: Colors.grey.shade200)),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10)),
+          child: Icon(icon, color: AppColors.primary),
+        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+        onTap: onTap,
       ),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-      onTap: onTap,
-    ),
-  );
+    );
+  }
 }
