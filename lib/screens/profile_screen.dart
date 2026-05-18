@@ -108,6 +108,128 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  void _showEditAddressDialog(String currentAddress) {
+    final addressController = TextEditingController(text: currentAddress);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Địa chỉ của tôi'),
+          content: TextField(
+            controller: addressController,
+            decoration: const InputDecoration(
+              labelText: 'Địa chỉ giao hàng',
+              hintText: 'Số nhà, tên đường, phường...',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  await _userService
+                      .updateUserAddress(addressController.text.trim());
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Cập nhật địa chỉ thành công')),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Lỗi cập nhật: $e')),
+                    );
+                  }
+                }
+              },
+              child: const Text('Lưu'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showEditPaymentDialog(int currentPayment) {
+    int selectedPayment = currentPayment;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Phương thức thanh toán'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  RadioListTile<int>(
+                    value: 1,
+                    groupValue: selectedPayment,
+                    onChanged: (value) =>
+                        setState(() => selectedPayment = value ?? 1),
+                    title: const Text('Tiền mặt (COD)'),
+                  ),
+                  RadioListTile<int>(
+                    value: 2,
+                    groupValue: selectedPayment,
+                    onChanged: (value) =>
+                        setState(() => selectedPayment = value ?? 1),
+                    title: const Text('Ví điện tử MoMo'),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Hủy'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      await _userService.updatePaymentMethod(selectedPayment);
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Cập nhật thanh toán thành công')),
+                        );
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Lỗi cập nhật: $e')),
+                        );
+                      }
+                    }
+                  },
+                  child: const Text('Lưu'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  String _paymentMethodLabel(dynamic value) {
+    switch (value) {
+      case 1:
+        return 'Tiền mặt (COD)';
+      case 2:
+        return 'Ví điện tử MoMo';
+      default:
+        return 'Chưa chọn';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot>(
@@ -126,6 +248,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final email = userData['email'] ?? '';
         final role = (userData['role'] ?? '').toString().toLowerCase();
         final isAdmin = role == 'admin';
+        final address = (userData['address'] ?? '').toString();
+        final paymentMethod = userData['paymentMethod'];
+        final paymentLabel = _paymentMethodLabel(paymentMethod);
 
         return SingleChildScrollView(
           child: Column(
@@ -236,14 +361,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _buildProfileItem(
                       icon: Icons.location_on_outlined,
                       title: 'Địa chỉ của tôi',
-                      subtitle: 'Quản lý địa chỉ nhận hàng',
-                      onTap: () {},
+                      subtitle: address.isEmpty
+                          ? 'Chưa có địa chỉ mặc định'
+                          : address,
+                      onTap: () => _showEditAddressDialog(address),
                     ),
                     _buildProfileItem(
                       icon: Icons.payment_outlined,
                       title: 'Phương thức thanh toán',
-                      subtitle: 'Thẻ ngân hàng, Ví MoMo...',
-                      onTap: () {},
+                      subtitle: paymentLabel,
+                      onTap: () => _showEditPaymentDialog(
+                        paymentMethod is int ? paymentMethod : 1,
+                      ),
                     ),
                     _buildProfileItem(
                       icon: Icons.settings_outlined,

@@ -27,6 +27,24 @@ class UserService {
     }
   }
 
+  Future<void> updateUserAddress(String address) async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      await _firestore.collection('Users').doc(user.uid).update({
+        'address': address,
+      });
+    }
+  }
+
+  Future<void> updatePaymentMethod(int paymentMethod) async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      await _firestore.collection('Users').doc(user.uid).update({
+        'paymentMethod': paymentMethod,
+      });
+    }
+  }
+
   Future<void> updateAvatar(File imageFile) async {
     final user = _auth.currentUser;
     if (user != null) {
