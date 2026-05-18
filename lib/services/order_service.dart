@@ -39,6 +39,22 @@ class OrderService {
         .snapshots();
   }
 
+  // 2b. Lấy toàn bộ đơn hàng cho admin
+  Stream<QuerySnapshot> getAllOrders() {
+    return _firestore
+        .collection('orders')
+        .orderBy('createdAt', descending: true)
+        .snapshots();
+  }
+
+  // 2c. Cập nhật trạng thái đơn hàng
+  Future<void> updateOrderStatus(String orderId, String status) async {
+    await _firestore.collection('orders').doc(orderId).update({
+      'status': status,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
   // 3. Lắng nghe trạng thái đơn hàng theo thời gian thực
   Stream<DocumentSnapshot> listenOrderStatus(String orderId) {
     return _firestore.collection('orders').doc(orderId).snapshots();
