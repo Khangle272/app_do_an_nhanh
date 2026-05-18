@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:app_do_an_nhanh/utils/app_colors.dart';
 import 'package:app_do_an_nhanh/providers/order_provider.dart';
 import 'package:app_do_an_nhanh/screens/order_history_screen.dart';
+import 'package:app_do_an_nhanh/screens/admin_order_management_screen.dart';
 import 'package:app_do_an_nhanh/services/auth_service.dart';
 import 'package:app_do_an_nhanh/services/user_service.dart';
 
@@ -109,27 +110,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          // Header Profile
-          StreamBuilder<DocumentSnapshot>(
-            stream: _userService.getCurrentUserData(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (!snapshot.hasData || snapshot.data == null) {
-                return const SizedBox();
-              }
+    return StreamBuilder<DocumentSnapshot>(
+      stream: _userService.getCurrentUserData(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData || snapshot.data == null) {
+          return const SizedBox();
+        }
 
-              final userData =
-                  snapshot.data!.data() as Map<String, dynamic>? ?? {};
-              final avatarUrl = userData['avatarUrl'];
-              final name = userData['name'] ?? 'Chưa cập nhật tên';
-              final email = userData['email'] ?? '';
+        final userData = snapshot.data!.data() as Map<String, dynamic>? ?? {};
+        final avatarUrl = userData['avatarUrl'];
+        final name = userData['name'] ?? 'Chưa cập nhật tên';
+        final email = userData['email'] ?? '';
+        final role = (userData['role'] ?? '').toString().toLowerCase();
+        final isAdmin = role == 'admin';
 
-              return Container(
+        return SingleChildScrollView(
+          child: Column(
+            children: [
+              // Header Profile
+              Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 40),
                 decoration: const BoxDecoration(
@@ -194,70 +196,85 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ],
                 ),
-              );
-            },
-          ),
+              ),
 
-          const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-          // Menu các lựa chọn
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: Column(
-              children: [
-                _buildProfileItem(
-                  icon: Icons.history,
-                  title: 'Đơn hàng của tôi',
-                  subtitle: 'Xem danh sách đơn hàng đã đặt',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const OrderHistoryScreen(),
+              // Menu các lựa chọn
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: Column(
+                  children: [
+                    _buildProfileItem(
+                      icon: Icons.history,
+                      title: 'Đơn hàng của tôi',
+                      subtitle: 'Xem danh sách đơn hàng đã đặt',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const OrderHistoryScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    if (isAdmin)
+                      _buildProfileItem(
+                        icon: Icons.admin_panel_settings_outlined,
+                        title: 'Quản lý đơn hàng',
+                        subtitle: 'Cập nhật trạng thái đơn của khách',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const AdminOrderManagementScreen(),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
+                    _buildProfileItem(
+                      icon: Icons.location_on_outlined,
+                      title: 'Địa chỉ của tôi',
+                      subtitle: 'Quản lý địa chỉ nhận hàng',
+                      onTap: () {},
+                    ),
+                    _buildProfileItem(
+                      icon: Icons.payment_outlined,
+                      title: 'Phương thức thanh toán',
+                      subtitle: 'Thẻ ngân hàng, Ví MoMo...',
+                      onTap: () {},
+                    ),
+                    _buildProfileItem(
+                      icon: Icons.settings_outlined,
+                      title: 'Cài đặt',
+                      subtitle: 'Thông báo, bảo mật, ngôn ngữ',
+                      onTap: () {},
+                    ),
+                    const SizedBox(height: 20),
+                    // Nút Đăng xuất
+                    ListTile(
+                      leading: const Icon(Icons.logout, color: Colors.red),
+                      title: const Text('Đăng xuất',
+                          style: TextStyle(
+                              color: Colors.red, fontWeight: FontWeight.bold)),
+                      onTap: () async {
+                        Provider.of<OrderProvider>(context, listen: false)
+                            .clearOrders();
+                        await AuthService().signOut();
+                        if (context.mounted) {
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, '/login', (route) => false);
+                        }
+                      },
+                    ),
+                  ],
                 ),
-                _buildProfileItem(
-                  icon: Icons.location_on_outlined,
-                  title: 'Địa chỉ của tôi',
-                  subtitle: 'Quản lý địa chỉ nhận hàng',
-                  onTap: () {},
-                ),
-                _buildProfileItem(
-                  icon: Icons.payment_outlined,
-                  title: 'Phương thức thanh toán',
-                  subtitle: 'Thẻ ngân hàng, Ví MoMo...',
-                  onTap: () {},
-                ),
-                _buildProfileItem(
-                  icon: Icons.settings_outlined,
-                  title: 'Cài đặt',
-                  subtitle: 'Thông báo, bảo mật, ngôn ngữ',
-                  onTap: () {},
-                ),
-                const SizedBox(height: 20),
-                // Nút Đăng xuất
-                ListTile(
-                  leading: const Icon(Icons.logout, color: Colors.red),
-                  title: const Text('Đăng xuất',
-                      style: TextStyle(
-                          color: Colors.red, fontWeight: FontWeight.bold)),
-                  onTap: () async {
-                    Provider.of<OrderProvider>(context, listen: false)
-                        .clearOrders();
-                    await AuthService().signOut();
-                    if (context.mounted) {
-                      Navigator.pushNamedAndRemoveUntil(
-                          context, '/login', (route) => false);
-                    }
-                  },
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
