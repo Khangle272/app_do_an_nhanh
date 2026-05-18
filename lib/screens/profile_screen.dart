@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:app_do_an_nhanh/utils/app_colors.dart';
 import 'package:app_do_an_nhanh/providers/order_provider.dart';
 import 'package:app_do_an_nhanh/screens/order_history_screen.dart';
-import 'package:app_do_an_nhanh/screens/order_tracking_screen.dart';
 import 'package:app_do_an_nhanh/services/auth_service.dart';
 import 'package:app_do_an_nhanh/services/user_service.dart';
 
@@ -220,39 +219,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                 ),
                 _buildProfileItem(
-                  icon: Icons.local_shipping_outlined,
-                  title: 'Theo dõi đơn đang giao',
-                  subtitle: 'Xem trạng thái đơn hiện tại',
-                  onTap: () {
-                    final latestOrder = Provider.of<OrderProvider>(
-                      context,
-                      listen: false,
-                    ).latestOrder;
-
-                    if (latestOrder != null) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => OrderTrackingScreen(
-                            orderId: latestOrder.code, // ✅ thêm orderId
-                            paymentMethod: latestOrder.paymentMethod,
-                            name: latestOrder.name,
-                            phone: latestOrder.phone,
-                            address: latestOrder.address,
-                            totalAmount: latestOrder.total,
-                          ),
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Chưa có đơn hàng nào đang giao"),
-                        ),
-                      );
-                    }
-                  },
-                ),
-                _buildProfileItem(
                   icon: Icons.location_on_outlined,
                   title: 'Địa chỉ của tôi',
                   subtitle: 'Quản lý địa chỉ nhận hàng',
@@ -278,6 +244,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       style: TextStyle(
                           color: Colors.red, fontWeight: FontWeight.bold)),
                   onTap: () async {
+                    Provider.of<OrderProvider>(context, listen: false)
+                        .clearOrders();
                     await AuthService().signOut();
                     if (context.mounted) {
                       Navigator.pushNamedAndRemoveUntil(

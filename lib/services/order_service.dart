@@ -5,13 +5,20 @@ class OrderService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  String _requireUserId() {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw Exception('User chưa đăng nhập');
+    }
+    return user.uid;
+  }
+
   // 1. Tạo đơn hàng mới và trả về DocumentReference để lấy id
   Future<DocumentReference> createOrder(Map<String, dynamic> cartData) async {
-    final user = _auth.currentUser;
-    if (user == null) throw Exception("User chưa đăng nhập");
+    final userId = _requireUserId();
 
     return await _firestore.collection('orders').add({
-      'userId': user.uid,
+      'userId': userId,
       'items': cartData['items'], // danh sách món từ CartProvider
       'totalPrice': cartData['totalPrice'],
       'status': 'Đang chuẩn bị', // trạng thái mặc định
@@ -25,11 +32,10 @@ class OrderService {
 
   // 2. Lấy lịch sử đơn hàng của user hiện tại
   Stream<QuerySnapshot> getOrderHistory() {
-    final user = _auth.currentUser;
+    final userId = _requireUserId();
     return _firestore
         .collection('orders')
-        .where('userId', isEqualTo: user?.uid)
-        .orderBy('createdAt', descending: true)
+        .where('userId', isEqualTo: userId)
         .snapshots();
   }
 

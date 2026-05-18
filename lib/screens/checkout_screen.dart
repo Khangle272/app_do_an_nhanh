@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:app_do_an_nhanh/providers/cart_provider.dart';
 import 'package:app_do_an_nhanh/providers/order_provider.dart';
 import 'package:app_do_an_nhanh/widgets/custom_app_bar.dart';
@@ -157,10 +158,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
                 // 3. Tạo bản ghi local để hiển thị nhanh
                 final now = DateTime.now();
+                final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
                 final dateStr =
                     '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year} - ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
 
                 final order = OrderHistoryItem(
+                  userId: userId,
                   code: docRef.id, // dùng document ID làm mã đơn
                   date: dateStr,
                   itemsSummary: cart.items.values

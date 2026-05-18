@@ -1,4 +1,5 @@
 class OrderHistoryItem {
+  final String userId; // ID người dùng sở hữu đơn hàng
   final String code; // Mã đơn hàng
   final String date; // Ngày giờ đặt
   final String itemsSummary; // Tóm tắt sản phẩm
@@ -10,6 +11,7 @@ class OrderHistoryItem {
   final String address; // Địa chỉ giao hàng
 
   const OrderHistoryItem({
+    required this.userId,
     required this.code,
     required this.date,
     required this.itemsSummary,
