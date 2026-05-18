@@ -9,6 +9,7 @@ import 'package:app_do_an_nhanh/utils/app_colors.dart';
 import 'package:app_do_an_nhanh/models/order_history_model.dart';
 import 'package:app_do_an_nhanh/screens/order_tracking_screen.dart';
 import 'package:app_do_an_nhanh/services/order_service.dart';
+import 'package:app_do_an_nhanh/services/user_service.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -22,7 +23,43 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
 
+  final UserService _userService = UserService();
+  bool _prefilled = false;
+
   int _selectedPayment = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    _prefillFromUser();
+  }
+
+  Future<void> _prefillFromUser() async {
+    try {
+      final snapshot = await _userService.getCurrentUserData().first;
+      if (!mounted || _prefilled) return;
+
+      final data = snapshot.data() as Map<String, dynamic>? ?? {};
+      if (_nameController.text.trim().isEmpty && data['name'] != null) {
+        _nameController.text = data['name'].toString();
+      }
+      if (_phoneController.text.trim().isEmpty && data['phone'] != null) {
+        _phoneController.text = data['phone'].toString();
+      }
+      if (_addressController.text.trim().isEmpty && data['address'] != null) {
+        _addressController.text = data['address'].toString();
+      }
+
+      final paymentMethod = data['paymentMethod'];
+      if (paymentMethod is int && (paymentMethod == 1 || paymentMethod == 2)) {
+        setState(() => _selectedPayment = paymentMethod);
+      }
+
+      _prefilled = true;
+    } catch (_) {
+      // Ignore prefill errors to avoid blocking checkout.
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -69,8 +69,8 @@ class _SearchScreenState extends State<SearchScreen> {
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
-          onPressed: () => Navigator.pop(
-              context), // Sửa thành pop() để quay lại đúng trang trước đó
+          onPressed: () => Navigator.pushReplacementNamed(
+              context, '/main'), // Quay về MainLayout
         ),
         title: TextField(
           controller: _searchController,

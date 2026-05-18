@@ -44,6 +44,7 @@ class AuthService {
           'email': email,
           'createdAt': FieldValue.serverTimestamp(),
           'role': 'user', // Default role
+          'paymentMethod': 1, // Default: COD
         });
       }
 
