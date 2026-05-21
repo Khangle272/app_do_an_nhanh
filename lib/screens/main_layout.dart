@@ -6,22 +6,30 @@ import 'package:app_do_an_nhanh/screens/cart_screen.dart';
 import 'package:app_do_an_nhanh/screens/profile_screen.dart';
 
 class MainLayout extends StatefulWidget {
-  const MainLayout({super.key});
+  final int initialIndex;
+
+  const MainLayout({super.key, this.initialIndex = 0});
 
   @override
   State<MainLayout> createState() => _MainLayoutState();
 }
 
 class _MainLayoutState extends State<MainLayout> {
-  int _currentIndex = 0;
+  late int _currentIndex;
 
   // Danh sách các màn hình
-  final List<Widget> _screens = [
-    const HomeScreen(),
-    const SearchScreen(),
-    const CartScreen(), // ✅ bỏ const để tránh lỗi
-    const ProfileScreen(),
+  static const List<Widget> _screens = [
+    HomeScreen(),
+    SearchScreen(),
+    CartScreen(),
+    ProfileScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -31,15 +39,11 @@ class _MainLayoutState extends State<MainLayout> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> screens = [
-      const HomeScreen(),
-      const SearchScreen(),
-      const CartScreen(),
-      const ProfileScreen(),
-    ];
-
     return Scaffold(
-      body: screens[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onItemTapped,
