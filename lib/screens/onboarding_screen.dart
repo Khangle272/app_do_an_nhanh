@@ -3,7 +3,9 @@ import 'package:app_do_an_nhanh/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingScreen extends StatelessWidget {
-  const OnboardingScreen({super.key});
+  final Future<void> Function()? onCompleted;
+
+  const OnboardingScreen({super.key, this.onCompleted});
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +54,11 @@ class OnboardingScreen extends StatelessWidget {
                 const SizedBox(height: 24),
                 PrimaryButton(
                   text: "Bắt đầu",
-                  onPressed: () {
+                  onPressed: () async {
+                    if (onCompleted != null) {
+                      await onCompleted!();
+                      return;
+                    }
                     Navigator.pushReplacementNamed(context, "/login");
                   },
                   backgroundColor: AppColors.primary,

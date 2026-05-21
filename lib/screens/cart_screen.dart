@@ -122,7 +122,12 @@ class CartScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10)),
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
             ),
-            onPressed: () => Navigator.pushNamed(context, '/main'),
+            onPressed: () => Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/main',
+              (route) => false,
+              arguments: 0,
+            ),
             child: const Text('MUA SẮM NGAY',
                 style: TextStyle(
                     color: Colors.white, fontWeight: FontWeight.bold)),
