@@ -51,9 +51,8 @@ class FastFoodApp extends StatelessWidget {
         '/main': (context) {
           final args = ModalRoute.of(context)?.settings.arguments;
           final initialIndex = args is int ? args : 0;
-          final safeIndex = (initialIndex < 0 || initialIndex > 3)
-              ? 0
-              : initialIndex;
+          final safeIndex =
+              (initialIndex < 0 || initialIndex > 3) ? 0 : initialIndex;
           return MainLayout(initialIndex: safeIndex);
         },
         '/home': (context) =>
