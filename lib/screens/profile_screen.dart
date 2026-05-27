@@ -7,6 +7,7 @@ import 'package:app_do_an_nhanh/utils/app_colors.dart';
 import 'package:app_do_an_nhanh/providers/order_provider.dart';
 import 'package:app_do_an_nhanh/screens/order_history_screen.dart';
 import 'package:app_do_an_nhanh/screens/admin_order_management_screen.dart';
+import 'package:app_do_an_nhanh/screens/admin_food_management_screen.dart';
 import 'package:app_do_an_nhanh/services/auth_service.dart';
 import 'package:app_do_an_nhanh/services/user_service.dart';
 
@@ -354,6 +355,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             MaterialPageRoute(
                               builder: (context) =>
                                   const AdminOrderManagementScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    if (isAdmin)
+                      _buildProfileItem(
+                        icon: Icons.fastfood_outlined,
+                        title: 'Quản lý món ăn',
+                        subtitle: 'Thêm, sửa, xóa món ăn trên app',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const AdminFoodManagementScreen(),
                             ),
                           );
                         },
